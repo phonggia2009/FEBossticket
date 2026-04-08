@@ -218,6 +218,16 @@ const Navbar: React.FC<NavbarProps> = ({
                         <p className="text-sm font-bold text-white truncate">{user.fullName}</p>
                         <p className="text-xs text-zinc-500 truncate mt-0.5">{user.email}</p>
                       </div>
+                      <div className="mt-3 flex items-center gap-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl px-3 py-2.5">
+                          <div className="w-8 h-8 bg-yellow-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span className="text-yellow-500 text-sm">⭐</span>
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">Điểm của tôi</span>
+                            <span className="text-sm font-black text-yellow-500">{(user?.points || 0).toLocaleString('vi-VN')}</span>
+                          </div>
+                        </div>
+
                       <div className="py-2">
                         <Link to="/my-bookings" onClick={() => setDropdownOpen(false)} className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition-colors">
                           <TicketIcon className="w-4 h-4 text-red-500" />

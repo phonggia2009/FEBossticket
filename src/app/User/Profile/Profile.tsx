@@ -5,6 +5,7 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({ fullName: '', phoneNumber: '', email: '' });
+  const [points, setPoints] = useState(0);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (msg: string, type: 'success' | 'error') => {
@@ -20,8 +21,9 @@ const Profile: React.FC = () => {
           setFormData({ 
             fullName: user.fullName || '', 
             phoneNumber: user.phoneNumber || '',
-            email: user.email || '' // Email chỉ để hiển thị, không cho sửa
+            email: user.email || '' ,// Email chỉ để hiển thị, không cho sửa
           });
+          setPoints(user.points || 0);
         }
       })
       .catch(err => console.error(err))
@@ -102,6 +104,15 @@ const Profile: React.FC = () => {
               className="w-full bg-zinc-950 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
             />
           </div>
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-5 mb-6 flex justify-between items-center">
+            <div>
+              <p className="text-zinc-400 text-sm font-bold mb-1">Điểm tích lũy hiện tại</p>
+              <p className="text-3xl font-black text-yellow-500">{points.toLocaleString('vi-VN')} <span className="text-lg">Điểm</span></p>
+            </div>
+            <div className="w-14 h-14 bg-yellow-500/20 flex justify-center items-center rounded-full">
+              <span className="text-yellow-500 text-2xl">⭐</span>
+            </div>
+        </div>
 
           {/* Nút Submit */}
           <button 

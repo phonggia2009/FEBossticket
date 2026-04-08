@@ -16,8 +16,6 @@ interface Props {
   productsPrice: number;
   originalTotalPrice: number;
   finalTotalPrice: number;
-  
-  // Props Voucher mới
   vouchers: Voucher[]; // Thêm prop này
   voucherCode: string;
   setVoucherCode: (code: string) => void;
@@ -27,12 +25,17 @@ interface Props {
   voucherError: string;
   onApplyVoucher: (code?: string) => void; // Cập nhật để có thể nhận param code
   onCancelVoucher: () => void;
+  userPoints: number;
+  isUsingPoints: boolean;
+  setIsUsingPoints: (val: boolean) => void;
+  pointsDiscountAmount: number;
 }
 
 const TicketSummary: React.FC<Props> = ({ 
   step, showtime, selectedSeats, selectedProducts, submitting, onNextOrCheckout,
   seatsPrice, productsPrice, originalTotalPrice, finalTotalPrice,
   vouchers, voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
+  userPoints, isUsingPoints, setIsUsingPoints, pointsDiscountAmount,
   onApplyVoucher, onCancelVoucher
 }) => {
 
@@ -95,6 +98,28 @@ const TicketSummary: React.FC<Props> = ({
           {/* ========================================== */}
           {step === 2 && (
             <div className="mb-6 border-t border-zinc-800 pt-5">
+              {userPoints > 0 && (
+                <div className="flex items-center justify-between mb-4 bg-yellow-500/10 p-3 rounded-xl border border-yellow-500/20">
+                  <div>
+                    <label className="block text-xs font-bold text-yellow-500 uppercase tracking-widest mb-1">
+                      Dùng điểm tích lũy
+                    </label>
+                    <p className="text-sm text-zinc-300">
+                      Bạn có: <span className="font-bold text-yellow-500">{userPoints.toLocaleString('vi-VN')} điểm</span>
+                    </p>
+                  </div>
+                  {/* Nút Toggle Switch */}
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={isUsingPoints} 
+                      onChange={(e) => setIsUsingPoints(e.target.checked)} 
+                    />
+                    <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                  </label>
+                </div>
+              )}
               <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">
                 Mã giảm giá
               </label>
@@ -176,7 +201,12 @@ const TicketSummary: React.FC<Props> = ({
                 <span className="font-bold">- {fmtPrice(discountAmount)}</span>
               </div>
             )}
-
+            {pointsDiscountAmount > 0 && (
+              <div className="w-full flex justify-between text-sm text-yellow-500 mt-1">
+                <span>Dùng điểm:</span>
+                <span className="font-bold">- {fmtPrice(pointsDiscountAmount)}</span>
+              </div>
+            )}
             <div className="w-full flex justify-between items-end mt-2">
               <span className="text-zinc-400 font-bold uppercase">Tổng tiền</span>
               <span className="text-3xl font-black text-red-500">

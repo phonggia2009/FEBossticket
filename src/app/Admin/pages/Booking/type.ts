@@ -5,6 +5,7 @@ export interface UserBasic {
   fullName: string;
   email: string;
   phoneNumber?: string;
+  points: number;
 }
 
 export interface TicketDetail {

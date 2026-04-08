@@ -15,7 +15,7 @@ const Booking: React.FC = () => {
     seatsPrice, productsPrice, originalTotalPrice, finalTotalPrice,
     vouchers, 
     voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
-    handleApplyVoucher, handleCancelVoucher
+    handleApplyVoucher, handleCancelVoucher,userPoints, isUsingPoints, setIsUsingPoints, pointsDiscountAmount
   } = useBooking();
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Spin size="large" /></div>;
@@ -61,6 +61,10 @@ const Booking: React.FC = () => {
         voucherError={voucherError}
         onApplyVoucher={handleApplyVoucher}
         onCancelVoucher={handleCancelVoucher}
+        userPoints={userPoints}
+        isUsingPoints={isUsingPoints}
+        setIsUsingPoints={setIsUsingPoints}
+        pointsDiscountAmount={pointsDiscountAmount} 
       />
 
     </div>

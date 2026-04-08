@@ -12,7 +12,6 @@ export const useBooking = () => {
   const navigate = useNavigate();
   const { user, token } = useSelector((state: RootState) => state.auth);
 
-  // --- QUẢN LÝ LUỒNG ---
   const [step, setStep] = useState<1 | 2>(1); // 1: Chọn ghế, 2: Chọn bắp nước
 
   const [loading, setLoading] = useState(true);
@@ -34,6 +33,10 @@ export const useBooking = () => {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [checkingVoucher, setCheckingVoucher] = useState(false);
   const [voucherError, setVoucherError] = useState('');
+  //Quản lý điểm tích lũy
+  const [isUsingPoints, setIsUsingPoints] = useState(false);
+  const userPoints = user?.points || 0; // Lấy điểm từ Redux auth
+  const POINTS_EXCHANGE_RATE = 1;
 
   const clientId = useRef<string>(user?.id?.toString() || Math.random().toString(36).substring(7));
   const socketRef = useRef<Socket | null>(null);
@@ -48,7 +51,6 @@ export const useBooking = () => {
     // 1. Tham gia phòng chiếu
     socket.emit('joinShowtime', { showtimeId: id });
 
-    // 2. Nhận danh sách ghế đang bị giữ từ server
     socket.on('currentHoldingSeats', (data: Record<string, string>) => {
       // data có dạng { "seatId": "userId" }
       const heldIds = Object.keys(data)
@@ -214,7 +216,9 @@ export const useBooking = () => {
   const seatsPrice = selectedSeats.reduce((total, seat) => total + seat.price, 0);
   const productsPrice = selectedProducts.reduce((total, p) => total + (p.price * p.quantity), 0);
   const originalTotalPrice = seatsPrice + productsPrice;
-  const finalTotalPrice = originalTotalPrice - discountAmount;
+  const maxPriceCanBeDiscounted = originalTotalPrice - discountAmount;
+  const pointsDiscountAmount = isUsingPoints ? Math.min(userPoints * POINTS_EXCHANGE_RATE, maxPriceCanBeDiscounted) : 0;
+  const finalTotalPrice = originalTotalPrice - discountAmount - pointsDiscountAmount;
 
   // Đã cập nhật để nhận vào tham số codeToApply (nếu được truyền từ dropdown)
   const handleApplyVoucher = async (codeToApply?: string) => {
@@ -273,7 +277,8 @@ export const useBooking = () => {
           seat_ids: selectedSeats.map(s => s.id),
           products: selectedProducts.map(p => ({ product_id: p.id, quantity: p.quantity })), 
           payment_method: "VN_PAY" ,
-          voucher_code: appliedVoucher || undefined
+          voucher_code: appliedVoucher || undefined,
+          points_used: isUsingPoints ? Math.floor(pointsDiscountAmount / POINTS_EXCHANGE_RATE) : 0
         };
         if (!token) {
             message.error("Vui lòng đăng nhập!");
@@ -302,9 +307,10 @@ export const useBooking = () => {
     products, selectedProducts, handleProductChange,
     handleNextOrCheckout,
     seatsPrice, productsPrice, originalTotalPrice, finalTotalPrice,
+    userPoints, isUsingPoints, setIsUsingPoints, pointsDiscountAmount,
     // Trả thêm danh sách vouchers
     vouchers,
     voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
-    handleApplyVoucher, handleCancelVoucher
+    handleApplyVoucher, handleCancelVoucher,
   };
 };
