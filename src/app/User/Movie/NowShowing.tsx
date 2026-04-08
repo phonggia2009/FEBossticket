@@ -185,7 +185,7 @@ const NowShowingPage = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent
                         opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                         <button
-                          onClick={e => { e.stopPropagation(); navigate(`/movies/${movie.id}`); }}
+                          onClick={e => { e.stopPropagation(); navigate(`/movie/${movie.id}`); }}
                           className="w-full bg-red-500 hover:bg-red-600 text-white text-sm font-semibold
                             py-2.5 rounded-lg transition-colors mb-2"
                         >

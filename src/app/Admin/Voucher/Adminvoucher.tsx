@@ -249,12 +249,21 @@ const AdminVoucher: React.FC = () => {
               </h4>
 
               <Space size="large" className="w-full flex">
-                <Form.Item name="discount_type" label="Hình thức giảm" rules={[{ required: true }]} className="flex-1">
-                  <Select size="large" options={[
-                    { label: 'Giảm theo Phần trăm (%)', value: 'PERCENTAGE' }, 
-                    { label: 'Giảm số tiền Cố định (VNĐ)', value: 'FIXED' }
-                  ]} />
-                </Form.Item>
+                <Form.Item 
+                    name="discount_type" 
+                    label="Hình thức giảm" 
+                    rules={[{ required: true }]} 
+                    className="flex-[2]"
+                  >
+                    <Select 
+                      size="large" 
+                      className="w-full" // Giãn thẻ Select đầy ô
+                      options={[
+                        { label: 'Phần trăm (%)', value: 'PERCENTAGE' }, 
+                        { label: 'Số tiền Cố định (VNĐ)', value: 'FIXED' }
+                      ]} 
+                    />
+                  </Form.Item>
                 <Form.Item name="discount_value" label="Giá trị giảm" rules={[{ required: true }]} className="flex-1">
                   <InputNumber size="large" min={1} className="w-full" />
                 </Form.Item>
