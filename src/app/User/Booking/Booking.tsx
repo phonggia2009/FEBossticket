@@ -12,8 +12,8 @@ const Booking: React.FC = () => {
     selectedSeats, holdingSeats, seatRows, handleSeatClick,
     products, selectedProducts, handleProductChange,
     handleNextOrCheckout,
-    // LẤY THÊM CÁC PROPS LIÊN QUAN ĐẾN TIỀN VÀ VOUCHER
     seatsPrice, productsPrice, originalTotalPrice, finalTotalPrice,
+    vouchers, 
     voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
     handleApplyVoucher, handleCancelVoucher
   } = useBooking();
@@ -52,6 +52,7 @@ const Booking: React.FC = () => {
         productsPrice={productsPrice}
         originalTotalPrice={originalTotalPrice}
         finalTotalPrice={finalTotalPrice}
+        vouchers={vouchers} // BỔ SUNG TRUYỀN vouchers VÀO COMPONENT NÀY
         voucherCode={voucherCode}
         setVoucherCode={setVoucherCode}
         appliedVoucher={appliedVoucher}

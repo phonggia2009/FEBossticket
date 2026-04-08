@@ -97,4 +97,6 @@ export const getShowtimesByCinema = (cinemaId: number, date: string) => {
 export const getPersonalizedVideos = () => {
   return axiosInstance.get('/movies/personalized-suggestions');
 };
-
+export const getActiveVouchers = () => {
+  return axiosInstance.get('/vouchers/active'); // Sửa lại thành /active
+};

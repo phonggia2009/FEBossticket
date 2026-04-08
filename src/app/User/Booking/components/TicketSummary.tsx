@@ -1,6 +1,7 @@
 import React from 'react';
 import { Spin } from 'antd';
-import type { Seat, ShowtimeInfo, SelectedProduct } from '../types';
+// Đã thêm import type Voucher
+import type { Seat, ShowtimeInfo, SelectedProduct, Voucher } from '../types';
 
 interface Props {
   step: 1 | 2;
@@ -9,25 +10,29 @@ interface Props {
   selectedProducts: SelectedProduct[];
   submitting: boolean;
   onNextOrCheckout: () => void;
-  // Các props mới
+  
+  // Props tính tiền
   seatsPrice: number;
   productsPrice: number;
   originalTotalPrice: number;
   finalTotalPrice: number;
+  
+  // Props Voucher mới
+  vouchers: Voucher[]; // Thêm prop này
   voucherCode: string;
   setVoucherCode: (code: string) => void;
   appliedVoucher: string;
   discountAmount: number;
   checkingVoucher: boolean;
   voucherError: string;
-  onApplyVoucher: () => void;
+  onApplyVoucher: (code?: string) => void; // Cập nhật để có thể nhận param code
   onCancelVoucher: () => void;
 }
 
 const TicketSummary: React.FC<Props> = ({ 
   step, showtime, selectedSeats, selectedProducts, submitting, onNextOrCheckout,
   seatsPrice, productsPrice, originalTotalPrice, finalTotalPrice,
-  voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
+  vouchers, voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
   onApplyVoucher, onCancelVoucher
 }) => {
 
@@ -93,10 +98,37 @@ const TicketSummary: React.FC<Props> = ({
               <label className="block text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">
                 Mã giảm giá
               </label>
+              
+              {/* Dropdown chọn mã có sẵn */}
+              <div className="flex flex-col gap-2 mb-3">
+                 <select
+                    value={appliedVoucher || voucherCode || ""}
+                    onChange={(e) => {
+                       const code = e.target.value;
+                       if (code) {
+                          onApplyVoucher(code); // Gọi API check mã ngay khi chọn
+                       } else {
+                          onCancelVoucher();
+                       }
+                    }}
+                    disabled={checkingVoucher}
+                    className="w-full bg-zinc-950 border border-zinc-800 text-white text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-red-500/50 disabled:opacity-50 transition-colors cursor-pointer"
+                  >
+                    <option value="">-- Chọn mã giảm giá có sẵn --</option>
+                    {vouchers.map(v => (
+                       <option key={v.id} value={v.code}>
+                          {v.code} - Giảm {v.discount_type === 'PERCENTAGE' ? `${v.discount_value}%` : fmtPrice(v.discount_value)}
+                          {v.min_order_value > 0 ? ` (Đơn tối thiểu ${fmtPrice(v.min_order_value)})` : ''}
+                       </option>
+                    ))}
+                  </select>
+              </div>
+
+              {/* Ô tự nhập mã (phòng khi user có mã ẩn không hiển thị trong danh sách) */}
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Nhập mã..."
+                  placeholder="Hoặc tự nhập mã..."
                   value={voucherCode}
                   onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
                   disabled={discountAmount > 0}
@@ -111,7 +143,7 @@ const TicketSummary: React.FC<Props> = ({
                   </button>
                 ) : (
                   <button 
-                    onClick={onApplyVoucher}
+                    onClick={() => onApplyVoucher()} // Gọi không truyền params để nó lấy mã từ voucherCode state
                     disabled={checkingVoucher || !voucherCode.trim()}
                     className="px-4 py-2.5 rounded-xl bg-red-600/20 border border-red-500/50 text-red-500 font-bold text-sm hover:bg-red-600/40 disabled:opacity-50 disabled:border-zinc-700 disabled:text-zinc-500 disabled:bg-zinc-800 transition-colors"
                   >

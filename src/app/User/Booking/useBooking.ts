@@ -4,8 +4,8 @@ import { message } from 'antd';
 import { useSelector } from 'react-redux';
 import { io, Socket } from 'socket.io-client';
 import type { RootState } from '../../../store';
-import { getShowtimeDetails, createBooking, getProducts, checkVoucher } from '../../../common/api/userAPI'; 
-import type { Seat, ShowtimeInfo, Product, SelectedProduct } from './types';
+import { getShowtimeDetails, createBooking, getProducts, checkVoucher, getActiveVouchers } from '../../../common/api/userAPI'; 
+import type { Seat, ShowtimeInfo, Product, SelectedProduct, Voucher } from './types';
 
 export const useBooking = () => {
   const { id } = useParams<{ id: string }>(); 
@@ -26,7 +26,9 @@ export const useBooking = () => {
   // --- QUẢN LÝ BẮP NƯỚC ---
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
-  //quản lý voucher
+  
+  // --- QUẢN LÝ VOUCHER ---
+  const [vouchers, setVouchers] = useState<Voucher[]>([]); // Thêm state lưu danh sách voucher
   const [voucherCode, setVoucherCode] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -36,7 +38,7 @@ export const useBooking = () => {
   const clientId = useRef<string>(user?.id?.toString() || Math.random().toString(36).substring(7));
   const socketRef = useRef<Socket | null>(null);
 
-  //Kết nối socket
+  // Kết nối socket
   useEffect(() => {
     if (!id) return;
 
@@ -92,9 +94,11 @@ export const useBooking = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [showtimeRes, productsRes] = await Promise.all([
+        // Đã thêm getActiveVouchers() vào Promise.all
+        const [showtimeRes, productsRes, vouchersRes] = await Promise.all([
           getShowtimeDetails(id as string),
-          getProducts()
+          getProducts(),
+          getActiveVouchers()
         ]);
 
         // ==========================================
@@ -117,7 +121,7 @@ export const useBooking = () => {
         const bookedSeatIds = rawTickets.map((t: any) => t.seat_id);
         const rawPrices = data.seat_prices || data.SeatPrices || [];
         
-        // Tạo một object ánh xạ giá cho nhanh. Ví dụ: { NORMAL: 50000, VIP: 60000, COUPLE: 80000 }
+        // Tạo một object ánh xạ giá cho nhanh
         const priceMap: Record<string, number> = {};
         rawPrices.forEach((p: any) => {
           priceMap[p.seat_type] = Number(p.price);
@@ -131,7 +135,6 @@ export const useBooking = () => {
             seat_number: s.seat_number,
             seat_type: type,
             isBooked: bookedSeatIds.includes(s.id),
-            // Lấy giá từ map, nếu Backend lỗi không trả về thì set tạm 50k
             price: priceMap[type] || 50000 
           };
         });
@@ -141,20 +144,23 @@ export const useBooking = () => {
         // ==========================================
         // XỬ LÝ DỮ LIỆU SẢN PHẨM (BẮP NƯỚC)
         // ==========================================
-        // Tùy theo cấu trúc JSON backend trả về (ví dụ: data.data.products hoặc data.data.data)
         const fetchedProducts = productsRes.data?.data?.products || productsRes.data?.data || [];
         
-        // Map lại dữ liệu để đảm bảo khớp 100% với Interface Product trên UI
         const formattedProducts: Product[] = fetchedProducts.map((p: any) => ({
           id: p.id,
           name: p.name,
           price: Number(p.price) || 0,
-          // Kiểm tra xem DB của bạn lưu ảnh là 'image' hay 'imageUrl'
           image: p.image || p.imageUrl || '', 
           description: p.description || ''
         }));
 
         setProducts(formattedProducts);
+
+        // ==========================================
+        // XỬ LÝ DỮ LIỆU DANH SÁCH MÃ GIẢM GIÁ
+        // ==========================================
+        const fetchedVouchers = vouchersRes.data?.data || vouchersRes.data || [];
+        setVouchers(fetchedVouchers);
 
       } catch (error) {
         console.error("Lỗi fetch data Booking:", error);
@@ -210,22 +216,30 @@ export const useBooking = () => {
   const originalTotalPrice = seatsPrice + productsPrice;
   const finalTotalPrice = originalTotalPrice - discountAmount;
 
-  const handleApplyVoucher = async () => {
-    if (!voucherCode.trim()) {
-      setVoucherError('Vui lòng nhập mã giảm giá');
+  // Đã cập nhật để nhận vào tham số codeToApply (nếu được truyền từ dropdown)
+  const handleApplyVoucher = async (codeToApply?: string) => {
+    const code = typeof codeToApply === 'string' ? codeToApply : voucherCode;
+    
+    if (!code.trim()) {
+      setVoucherError('Vui lòng nhập hoặc chọn mã giảm giá');
       return;
     }
+    
     setCheckingVoucher(true);
     setVoucherError('');
     try {
-      const res = await checkVoucher({ code: voucherCode, original_price: originalTotalPrice });
+      const res = await checkVoucher({ code: code, original_price: originalTotalPrice });
       const discount = res.data?.data?.discountAmount || 0;
+      
       setDiscountAmount(discount);
-      setAppliedVoucher(voucherCode);
+      setAppliedVoucher(code);
+      if (code !== voucherCode) setVoucherCode(code); // Cập nhật lại thanh input nếu code từ Dropdown
+      
       message.success('Áp dụng mã giảm giá thành công!');
     } catch (error: any) {
       setDiscountAmount(0);
       setAppliedVoucher('');
+      setVoucherCode('');
       setVoucherError(error.response?.data?.message || 'Mã không hợp lệ hoặc đã hết hạn');
     } finally {
       setCheckingVoucher(false);
@@ -257,7 +271,6 @@ export const useBooking = () => {
         const payload = {
           showtime_id: Number(id),
           seat_ids: selectedSeats.map(s => s.id),
-          // Bắn mảng sản phẩm kèm số lượng xuống Backend đúng định dạng { product_id, quantity }
           products: selectedProducts.map(p => ({ product_id: p.id, quantity: p.quantity })), 
           payment_method: "VN_PAY" ,
           voucher_code: appliedVoucher || undefined
@@ -266,13 +279,14 @@ export const useBooking = () => {
             message.error("Vui lòng đăng nhập!");
             return;
         }
-const res = await createBooking(payload);
+        const res = await createBooking(payload);
         console.log('FULL RESPONSE:', res.data); 
         message.success("Tạo đơn hàng thành công!");
+        
         if (res.data.data.paymentUrl) window.location.href = res.data.data.paymentUrl;
         else navigate('/my-tickets'); 
       } catch (error: any) {
-         console.log('LỖI 400:', error.response?.data); 
+        console.log('LỖI 400:', error.response?.data); 
         message.error(error.response?.data?.message || "Lỗi thanh toán!");
         setTimeout(() => window.location.reload(), 1500); 
       } finally {
@@ -288,6 +302,8 @@ const res = await createBooking(payload);
     products, selectedProducts, handleProductChange,
     handleNextOrCheckout,
     seatsPrice, productsPrice, originalTotalPrice, finalTotalPrice,
+    // Trả thêm danh sách vouchers
+    vouchers,
     voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
     handleApplyVoucher, handleCancelVoucher
   };

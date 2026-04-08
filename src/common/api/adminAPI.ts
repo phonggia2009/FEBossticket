@@ -136,17 +136,12 @@ export const getAllVouchers = () => {
   return axiosInstance.get('/vouchers');
 };
 
-export const createVoucher = (data: {
-  code: string;
-  discount_type: 'PERCENTAGE' | 'FIXED';
-  discount_value: number;
-  max_discount?: number;
-  min_order_value?: number;
-  usage_limit?: number;
-  start_date: string; 
-  end_date: string;   
-}) => {
-  return axiosInstance.post('/vouchers', data);
+export const createVoucher = (data: FormData) => {
+  return axiosInstance.post('/vouchers', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 };
 
 export const toggleVoucherStatus = (id: number) => {

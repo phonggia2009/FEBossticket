@@ -27,3 +27,23 @@ export interface Product {
 export interface SelectedProduct extends Product {
   quantity: number;
 }
+
+export interface Voucher {
+  id: number;
+  code: string;
+  discount_type: 'PERCENTAGE' | 'FIXED';
+  discount_value: number;
+  max_discount?: number | null; 
+  min_order_value: number;
+  usage_limit: number;
+  used_count: number;
+  start_date: string; // Trả về từ API thường là chuỗi ISO 8601
+  end_date: string;
+  is_active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  title: string;
+  description: string;
+  image: string;
+  tag: string;
+}
