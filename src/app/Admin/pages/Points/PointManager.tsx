@@ -1,5 +1,4 @@
 // src/app/Admin/pages/Point/PointManager.tsx
-import React from 'react';
 import { Card, Input } from 'antd';
 import { usePointManager } from './usePointManager';
 import PointHistoryTable from './components/PointHistoryTable';

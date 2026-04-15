@@ -1,6 +1,5 @@
 // src/app/Admin/pages/Cinema/CinemaManager.tsx
 
-import React from 'react';
 import { Button, Card } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import SearchBox from '../../../../common/components/SearchBox';

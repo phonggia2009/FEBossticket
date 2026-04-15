@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Space, Popconfirm} from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { getGenres, createGenre, updateGenre, deleteGenre } from '../../../common/api/adminAPI';

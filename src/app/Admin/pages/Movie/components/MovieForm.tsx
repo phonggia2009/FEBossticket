@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, InputNumber, DatePicker, Select, Upload, Button, message, Row, Col } from 'antd';
+import  { useEffect, useState } from 'react';
+import { Modal, Form, Input, InputNumber, DatePicker, Select, Upload, Button, message } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { createMovie, updateMovie } from '../../../../../common/api/adminAPI';
 
-interface MovieFormProps {
-  open: boolean;
-  onCancel: () => void;
-  onSuccess: () => void;
-  editingMovie: any; // Dữ liệu phim khi sửa, null khi thêm
-  genres: any[];     // Danh sách thể loại để chọn
-}
+
 
 const getYouTubeID = (url: string) => {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;

@@ -1,6 +1,6 @@
 // src/app/Admin/pages/Point/components/PointHistoryTable.tsx
 import React from 'react';
-import { Table, Button, Space, Tag } from 'antd';
+import { Table, Button, Tag } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { PointHistory, UserBasic } from '../type';

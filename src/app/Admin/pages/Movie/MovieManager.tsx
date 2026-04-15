@@ -1,6 +1,5 @@
 // src/app/Admin/pages/Movie/MovieManager.tsx
 
-import React from 'react';
 import { Button, Space } from 'antd';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';

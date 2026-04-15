@@ -5,7 +5,7 @@ import {
   Modal, Form, Input, InputNumber, Select,
   Switch, Upload, Typography, Row, Col, Divider,
 } from 'antd';
-import { PlusOutlined, InboxOutlined } from '@ant-design/icons';
+import { InboxOutlined } from '@ant-design/icons';
 import type { Product, ProductFormValues, ProductType } from '../type';
 import { PRODUCT_TYPE_ICONS } from '../constants';
 

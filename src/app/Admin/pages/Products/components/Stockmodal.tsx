@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Modal, InputNumber, Typography, Space, Tag } from 'antd';
-import { StockOutlined } from '@ant-design/icons';
 import type { Product } from '../type';
 
 const { Text } = Typography;

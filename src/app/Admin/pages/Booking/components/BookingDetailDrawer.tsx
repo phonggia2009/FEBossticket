@@ -1,8 +1,8 @@
 // src/app/Admin/pages/Booking/components/BookingDetailDrawer.tsx
 import React from 'react';
-import { Drawer, Descriptions, Table, Tag, Spin, Button, Space, Popconfirm, Select } from 'antd';
+import { Drawer, Descriptions, Table, Spin, Button, Space, Popconfirm, Select } from 'antd';
 import dayjs from 'dayjs';
-import type { Booking, TicketDetail, ProductDetail } from '../type';
+import type { Booking, ProductDetail } from '../type';
 
 interface Props {
   open: boolean;
