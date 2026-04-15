@@ -1,6 +1,4 @@
 // src/app/Admin/pages/Movie/MovieTrash.tsx
-
-import React from 'react';
 import { Table, Button, Space, Popconfirm, Image, Tag } from 'antd';
 import { RollbackOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
