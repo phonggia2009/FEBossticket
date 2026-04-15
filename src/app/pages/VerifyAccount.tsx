@@ -10,32 +10,44 @@ const VerifyAccount: React.FC = () => {
   const [message, setMessage] = useState('Đang xác thực tài khoản của bạn...');
 
   useEffect(() => {
-    const verify = async () => {
-      if (isCalled.current) return;
-      
-      const token = searchParams.get('token');
-      if (!token) return;
+  const verify = async () => {
+    if (isCalled.current) return;
 
-      isCalled.current = true;
-      try {
-        const response = await axios.get(`http://localhost:5000/api/auth/verify-account?token=${token}`);
-        
-        if (response.status === 200) {
-          setStatus('success');
-          setMessage('Xác thực thành công! Đang chuyển hướng về trang đăng nhập...');
-          // Tự động chuyển hướng sau 3 giây
-          setTimeout(() => {
-            navigate('/login?verified=true');
-          }, 3000);
+    const token = searchParams.get('token');
+    if (!token) return;
+
+    isCalled.current = true;
+
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+
+      const response = await axios.get(
+        `${API_URL}/auth/verify-account`,
+        {
+          params: { token }
         }
-      } catch (error: any) {
-        setStatus('error');
-        setMessage(error.response?.data?.message || 'Liên kết xác thực không hợp lệ hoặc đã hết hạn.');
-      }
-    };
+      );
 
-    verify();
-  }, [searchParams, navigate]);
+      if (response.status === 200) {
+        setStatus('success');
+        setMessage('Xác thực thành công! Đang chuyển hướng về trang đăng nhập...');
+
+        setTimeout(() => {
+          navigate('/login?verified=true');
+        }, 3000);
+      }
+
+    } catch (error: any) {
+      setStatus('error');
+      setMessage(
+        error.response?.data?.message ||
+        'Liên kết xác thực không hợp lệ hoặc đã hết hạn.'
+      );
+    }
+  };
+
+  verify();
+}, [searchParams, navigate]);
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center px-4">
