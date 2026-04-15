@@ -39,6 +39,7 @@ const AdminLayout = () => {
             { key: '/admin/movies', icon: <VideoCameraOutlined />, label: 'Quản lý Phim' },
             { key: '/admin/cinemas', icon: <EnvironmentOutlined />, label: 'Quản lý Rạp' },
             { key: '/admin/users', icon: <UserOutlined />, label: 'Quản lý User' },
+            { key: '/admin/points', icon: <TagsOutlined />, label: 'Quản lý Điểm' },
             { key: '/admin/products', icon: <TagsOutlined />, label: 'Quản lý Sản phẩm' },
             { key: '/admin/genres', icon: <TagsOutlined />, label: 'Quản lý Thể loại' },
             { key: '/admin/dashboard', icon: <DashboardOutlined />, label: 'Báo Cáo Tổng Quan' },

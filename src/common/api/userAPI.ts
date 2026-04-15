@@ -100,3 +100,6 @@ export const getPersonalizedVideos = () => {
 export const getActiveVouchers = () => {
   return axiosInstance.get('/vouchers/active'); // Sửa lại thành /active
 };
+export const getMyPointHistory = (page: number, limit: number) => {
+  return axiosInstance.get(`/users/my-history`, { params: { page, limit } });
+};

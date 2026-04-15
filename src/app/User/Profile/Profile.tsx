@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getMe, updateProfile } from '../../../common/api/userAPI';
+import MyPointHistory from './components/MyPointHistory';
 
 const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -21,7 +22,7 @@ const Profile: React.FC = () => {
           setFormData({ 
             fullName: user.fullName || '', 
             phoneNumber: user.phoneNumber || '',
-            email: user.email || '' ,// Email chỉ để hiển thị, không cho sửa
+            email: user.email || '',
           });
           setPoints(user.points || 0);
         }
@@ -40,9 +41,6 @@ const Profile: React.FC = () => {
     try {
       await updateProfile({ fullName: formData.fullName, phoneNumber: formData.phoneNumber });
       showToast('Cập nhật thông tin thành công!', 'success');
-      
-      // Nếu bạn có dùng Redux lưu thông tin user, bạn nên dispatch action update ở đây
-      
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Lỗi cập nhật', 'error');
     } finally {
@@ -53,7 +51,8 @@ const Profile: React.FC = () => {
   if (loading) return <div className="text-center py-20 text-zinc-400">Đang tải...</div>;
 
   return (
-    <div className="max-w-xl mx-auto py-10 px-4 relative">
+    // Mở rộng container ra max-w-6xl để đủ chỗ cho 2 card
+    <div className="max-w-6xl mx-auto py-10 px-4 relative">
       {/* Toast Thông báo */}
       {toast && (
         <div className={`fixed top-24 right-5 z-50 px-5 py-3 rounded-xl shadow-lg border bg-zinc-900 ${
@@ -63,66 +62,74 @@ const Profile: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-xl">
-        <h2 className="text-2xl font-black text-white mb-6 uppercase">Thông tin cá nhân</h2>
+      {/* CHIA GRID: 1 cột trên Mobile, 2 cột trên Desktop (lg) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email (Disabled) */}
-          <div>
-            <label className="block text-sm font-bold text-zinc-400 mb-2">Email (Không thể thay đổi)</label>
-            <input 
-              type="email" 
-              value={formData.email} 
-              disabled 
-              className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 rounded-xl px-4 py-3 cursor-not-allowed"
-            />
-          </div>
-
-          {/* Họ và Tên */}
-          <div>
-            <label className="block text-sm font-bold text-zinc-300 mb-2">Họ và Tên</label>
-            <input 
-              type="text" 
-              name="fullName"
-              value={formData.fullName} 
-              onChange={handleChange}
-              placeholder="Nhập họ và tên..."
-              required
-              className="w-full bg-zinc-950 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
-            />
-          </div>
-
-          {/* Số điện thoại */}
-          <div>
-            <label className="block text-sm font-bold text-zinc-300 mb-2">Số điện thoại</label>
-            <input 
-              type="tel" 
-              name="phoneNumber"
-              value={formData.phoneNumber} 
-              onChange={handleChange}
-              placeholder="Nhập số điện thoại..."
-              className="w-full bg-zinc-950 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
-            />
-          </div>
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-5 mb-6 flex justify-between items-center">
+        {/* CARD TRÁI: THÔNG TIN CÁ NHÂN */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-xl">
+          <h2 className="text-2xl font-black text-white mb-6 uppercase">Thông tin cá nhân</h2>
+          
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <p className="text-zinc-400 text-sm font-bold mb-1">Điểm tích lũy hiện tại</p>
-              <p className="text-3xl font-black text-yellow-500">{points.toLocaleString('vi-VN')} <span className="text-lg">Điểm</span></p>
+              <label className="block text-sm font-bold text-zinc-400 mb-2">Email (Không thể thay đổi)</label>
+              <input 
+                type="email" 
+                value={formData.email} 
+                disabled 
+                className="w-full bg-zinc-950 border border-zinc-800 text-zinc-500 rounded-xl px-4 py-3 cursor-not-allowed"
+              />
             </div>
-            <div className="w-14 h-14 bg-yellow-500/20 flex justify-center items-center rounded-full">
-              <span className="text-yellow-500 text-2xl">⭐</span>
+
+            <div>
+              <label className="block text-sm font-bold text-zinc-300 mb-2">Họ và Tên</label>
+              <input 
+                type="text" 
+                name="fullName"
+                value={formData.fullName} 
+                onChange={handleChange}
+                placeholder="Nhập họ và tên..."
+                required
+                className="w-full bg-zinc-950 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
+              />
             </div>
+
+            <div>
+              <label className="block text-sm font-bold text-zinc-300 mb-2">Số điện thoại</label>
+              <input 
+                type="tel" 
+                name="phoneNumber"
+                value={formData.phoneNumber} 
+                onChange={handleChange}
+                placeholder="Nhập số điện thoại..."
+                className="w-full bg-zinc-950 border border-zinc-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-colors"
+              />
+            </div>
+
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-5 mb-6 flex justify-between items-center">
+              <div>
+                <p className="text-zinc-400 text-sm font-bold mb-1">Điểm tích lũy hiện tại</p>
+                <p className="text-3xl font-black text-yellow-500">{points.toLocaleString('vi-VN')} <span className="text-lg">Điểm</span></p>
+              </div>
+              <div className="w-14 h-14 bg-yellow-500/20 flex justify-center items-center rounded-full">
+                <span className="text-yellow-500 text-2xl">⭐</span>
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              disabled={submitting}
+              className="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? 'ĐANG LƯU...' : 'LƯU THAY ĐỔI'}
+            </button>
+          </form>
         </div>
 
-          {/* Nút Submit */}
-          <button 
-            type="submit" 
-            disabled={submitting}
-            className="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? 'ĐANG LƯU...' : 'LƯU THAY ĐỔI'}
-          </button>
-        </form>
+        {/* CARD PHẢI: LỊCH SỬ ĐIỂM */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-xl h-full flex flex-col">
+          <MyPointHistory />
+        </div>
+
       </div>
     </div>
   );

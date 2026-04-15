@@ -150,3 +150,11 @@ export const toggleVoucherStatus = (id: number) => {
 export const checkInBookingApi = (data: { booking_id: string | number }) => {
   return axiosInstance.post('/bookings/admin/checkin', data);
 };
+// Thêm vào adminAPI.ts
+export const getAllPointHistoryAdmin = (page: number, limit: number, filters: any) => {
+  return axiosInstance.get(`/users/admin/history`, { params: { page, limit, ...filters } });
+};
+
+export const adjustPointsAdmin = (userId: number, amount: number, reason: string) => {
+  return axiosInstance.post(`/users/admin/${userId}/adjust-points`, { amount, reason });
+};

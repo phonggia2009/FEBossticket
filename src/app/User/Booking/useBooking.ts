@@ -12,7 +12,7 @@ export const useBooking = () => {
   const navigate = useNavigate();
   const { user, token } = useSelector((state: RootState) => state.auth);
 
-  const [step, setStep] = useState<1 | 2>(1); // 1: Chọn ghế, 2: Chọn bắp nước
+  const [step, setStep] = useState<1 | 2>(1); 
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -27,61 +27,64 @@ export const useBooking = () => {
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([]);
   
   // --- QUẢN LÝ VOUCHER ---
-  const [vouchers, setVouchers] = useState<Voucher[]>([]); // Thêm state lưu danh sách voucher
+  const [vouchers, setVouchers] = useState<Voucher[]>([]); 
   const [voucherCode, setVoucherCode] = useState('');
   const [appliedVoucher, setAppliedVoucher] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
   const [checkingVoucher, setCheckingVoucher] = useState(false);
   const [voucherError, setVoucherError] = useState('');
-  //Quản lý điểm tích lũy
+
+  // --- QUẢN LÝ ĐIỂM TÍCH LŨY ---
   const [isUsingPoints, setIsUsingPoints] = useState(false);
-  const userPoints = user?.points || 0; // Lấy điểm từ Redux auth
+  const userPoints = user?.points || 0; 
   const POINTS_EXCHANGE_RATE = 1;
 
-  const clientId = useRef<string>(user?.id?.toString() || Math.random().toString(36).substring(7));
   const socketRef = useRef<Socket | null>(null);
 
-  // Kết nối socket
+  // ==========================================
+  // KẾT NỐI SOCKET & XỬ LÝ REAL-TIME
+  // ==========================================
   useEffect(() => {
     if (!id) return;
 
     socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
     const socket = socketRef.current;
 
-    // 1. Tham gia phòng chiếu
-    socket.emit('joinShowtime', { showtimeId: id });
+    socket.on('connect', () => {
+      socket.emit('joinShowtime', { showtimeId: id });
+    });
 
+    // 1. Nhận danh sách ghế đang bị giữ từ BE
     socket.on('currentHoldingSeats', (data: Record<string, string>) => {
-      // data có dạng { "seatId": "userId" }
+      // data có dạng { "seatId": "socketId" }
       const heldIds = Object.keys(data)
         .map(Number)
-        .filter(seatId => data[seatId] !== clientId.current); // Bỏ qua các ghế do chính mình đang giữ
+        .filter(seatId => data[seatId] !== socket.id); // So sánh với socket.id hiện tại
+      
       setHoldingSeats(heldIds);
     });
 
-    // 3. Có người khác vừa click chọn ghế
-    socket.on('seatHeld', ({ seatId, userId }) => {
-      if (userId !== clientId.current) {
+    // 2. Có người khác vừa click chọn ghế
+    socket.on('seatHeld', ({ seatId, socketId }) => {
+      // Nếu socketId của người vừa chọn KHÁC với socket.id của tab này -> Bôi xám
+      if (socketId !== socket.id) {
         setHoldingSeats(prev => [...prev, Number(seatId)]);
       }
     });
 
-    // 4. Có người khác vừa bỏ chọn ghế
-    socket.on('seatReleased', ({ seatId, userId }) => {
-      if (userId !== clientId.current) {
+    // 3. Có người khác vừa bỏ chọn ghế
+    socket.on('seatReleased', ({ seatId, socketId }) => {
+      if (socketId !== socket.id) {
         setHoldingSeats(prev => prev.filter(hid => hid !== Number(seatId)));
       }
     });
 
-    // 5. CÓ NGƯỜI VỪA THANH TOÁN THÀNH CÔNG
+    // 4. CÓ NGƯỜI VỪA THANH TOÁN THÀNH CÔNG
     socket.on('seatsBooked', ({ seatIds }: { seatIds: number[] }) => {
-      // Đổi trạng thái ghế trong state `seats` thành Đã bán (isBooked: true)
       setSeats(prev => prev.map(seat => 
         seatIds.includes(seat.id) ? { ...seat, isBooked: true } : seat
       ));
-      // Xoá khỏi danh sách đang chọn
       setHoldingSeats(prev => prev.filter(hid => !seatIds.includes(hid)));
-      // Nếu không may mình đang chọn trúng ghế người ta vừa mua xong -> Xoá khỏi selectedSeats của mình
       setSelectedSeats(prev => prev.filter(seat => !seatIds.includes(seat.id)));
     });
 
@@ -90,22 +93,18 @@ export const useBooking = () => {
       socket.emit('leaveShowtime', { showtimeId: id });
       socket.disconnect();
     };
-  }, [id])
+  }, [id]);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Đã thêm getActiveVouchers() vào Promise.all
         const [showtimeRes, productsRes, vouchersRes] = await Promise.all([
           getShowtimeDetails(id as string),
           getProducts(),
           getActiveVouchers()
         ]);
 
-        // ==========================================
-        // XỬ LÝ DỮ LIỆU SUẤT CHIẾU VÀ GHẾ
-        // ==========================================
         const data = showtimeRes.data?.data?.showtime || showtimeRes.data?.data;
         if (!data) throw new Error("Không có dữ liệu suất chiếu");
 
@@ -123,11 +122,8 @@ export const useBooking = () => {
         const bookedSeatIds = rawTickets.map((t: any) => t.seat_id);
         const rawPrices = data.seat_prices || data.SeatPrices || [];
         
-        // Tạo một object ánh xạ giá cho nhanh
         const priceMap: Record<string, number> = {};
-        rawPrices.forEach((p: any) => {
-          priceMap[p.seat_type] = Number(p.price);
-        });
+        rawPrices.forEach((p: any) => { priceMap[p.seat_type] = Number(p.price); });
 
         const formattedSeats: Seat[] = rawSeats.map((s: any) => {
           const type = s.seat_type || 'NORMAL';
@@ -143,11 +139,7 @@ export const useBooking = () => {
         
         setSeats(formattedSeats);
 
-        // ==========================================
-        // XỬ LÝ DỮ LIỆU SẢN PHẨM (BẮP NƯỚC)
-        // ==========================================
         const fetchedProducts = productsRes.data?.data?.products || productsRes.data?.data || [];
-        
         const formattedProducts: Product[] = fetchedProducts.map((p: any) => ({
           id: p.id,
           name: p.name,
@@ -155,12 +147,8 @@ export const useBooking = () => {
           image: p.image || p.imageUrl || '', 
           description: p.description || ''
         }));
-
         setProducts(formattedProducts);
 
-        // ==========================================
-        // XỬ LÝ DỮ LIỆU DANH SÁCH MÃ GIẢM GIÁ
-        // ==========================================
         const fetchedVouchers = vouchersRes.data?.data || vouchersRes.data || [];
         setVouchers(fetchedVouchers);
 
@@ -174,7 +162,7 @@ export const useBooking = () => {
     if (id) fetchData();
   }, [id]);
 
-  // 2. Nhóm ghế
+  // Nhóm ghế theo hàng
   const seatRows = useMemo(() => {
     const rows: Record<string, Seat[]> = {};
     seats.forEach(seat => {
@@ -184,7 +172,9 @@ export const useBooking = () => {
     return rows;
   }, [seats]);
 
-  // 3. Logic click chọn ghế
+  // ==========================================
+  // CLICK CHỌN GHẾ
+  // ==========================================
   const handleSeatClick = (seat: Seat) => {
     if (seat.isBooked || holdingSeats.includes(seat.id)) return; 
 
@@ -192,15 +182,17 @@ export const useBooking = () => {
     
     if (isSelected) {
       setSelectedSeats(selectedSeats.filter(s => s.id !== seat.id));
-      socketRef.current?.emit('releaseSeat', { showtimeId: id, seatId: seat.id, userId: clientId.current });
+      // Không cần gửi userId nữa, Backend sẽ tự dùng socket.id
+      socketRef.current?.emit('releaseSeat', { showtimeId: id, seatId: seat.id });
     } else {
       if (selectedSeats.length >= 8) return message.warning("Tối đa 8 vé!");
       setSelectedSeats([...selectedSeats, seat]);
-      socketRef.current?.emit('holdSeat', { showtimeId: id, seatId: seat.id, userId: clientId.current });
+      // Không cần gửi userId nữa, Backend sẽ tự dùng socket.id
+      socketRef.current?.emit('holdSeat', { showtimeId: id, seatId: seat.id });
     }
   };
 
-  // 4. Logic Chọn Sản phẩm
+  // Logic Chọn Sản phẩm
   const handleProductChange = (product: Product, quantity: number) => {
     setSelectedProducts(prev => {
       const existing = prev.find(p => p.id === product.id);
@@ -213,6 +205,7 @@ export const useBooking = () => {
     });
   };
 
+  // Tính toán tiền
   const seatsPrice = selectedSeats.reduce((total, seat) => total + seat.price, 0);
   const productsPrice = selectedProducts.reduce((total, p) => total + (p.price * p.quantity), 0);
   const originalTotalPrice = seatsPrice + productsPrice;
@@ -220,7 +213,6 @@ export const useBooking = () => {
   const pointsDiscountAmount = isUsingPoints ? Math.min(userPoints * POINTS_EXCHANGE_RATE, maxPriceCanBeDiscounted) : 0;
   const finalTotalPrice = originalTotalPrice - discountAmount - pointsDiscountAmount;
 
-  // Đã cập nhật để nhận vào tham số codeToApply (nếu được truyền từ dropdown)
   const handleApplyVoucher = async (codeToApply?: string) => {
     const code = typeof codeToApply === 'string' ? codeToApply : voucherCode;
     
@@ -237,7 +229,7 @@ export const useBooking = () => {
       
       setDiscountAmount(discount);
       setAppliedVoucher(code);
-      if (code !== voucherCode) setVoucherCode(code); // Cập nhật lại thanh input nếu code từ Dropdown
+      if (code !== voucherCode) setVoucherCode(code); 
       
       message.success('Áp dụng mã giảm giá thành công!');
     } catch (error: any) {
@@ -257,7 +249,7 @@ export const useBooking = () => {
     setVoucherError('');
   };
 
-  // 5. Logic Nút Bấm Đáy (Tiếp tục -> Thanh toán)
+  // Nút Bấm Đáy (Tiếp tục -> Thanh toán)
   const handleNextOrCheckout = async () => {
     if (step === 1) {
       if (selectedSeats.length === 0) return message.error("Vui lòng chọn ít nhất 1 ghế!");
@@ -266,10 +258,8 @@ export const useBooking = () => {
          navigate('/login');
          return;
       }
-      // Chuyển sang bước chọn Bắp nước
       setStep(2); 
     } else {
-      // Đang ở bước 2 -> THANH TOÁN THẬT
       setSubmitting(true);
       try {
         const payload = {
@@ -285,13 +275,11 @@ export const useBooking = () => {
             return;
         }
         const res = await createBooking(payload);
-        console.log('FULL RESPONSE:', res.data); 
         message.success("Tạo đơn hàng thành công!");
         
         if (res.data.data.paymentUrl) window.location.href = res.data.data.paymentUrl;
         else navigate('/my-tickets'); 
       } catch (error: any) {
-        console.log('LỖI 400:', error.response?.data); 
         message.error(error.response?.data?.message || "Lỗi thanh toán!");
         setTimeout(() => window.location.reload(), 1500); 
       } finally {
@@ -308,7 +296,6 @@ export const useBooking = () => {
     handleNextOrCheckout,
     seatsPrice, productsPrice, originalTotalPrice, finalTotalPrice,
     userPoints, isUsingPoints, setIsUsingPoints, pointsDiscountAmount,
-    // Trả thêm danh sách vouchers
     vouchers,
     voucherCode, setVoucherCode, appliedVoucher, discountAmount, checkingVoucher, voucherError,
     handleApplyVoucher, handleCancelVoucher,

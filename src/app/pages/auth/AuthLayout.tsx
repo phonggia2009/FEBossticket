@@ -12,10 +12,6 @@ import { loginUser } from '../../../store/slices/authSlice';
 import type { RootState, AppDispatch } from '../../../store';
 const DURATION = 0.45;
 const EASE = [0.76, 0, 0.24, 1] as [number, number, number, number];
-
-// ── Direction-aware variants ──────────────────────────────────────────
-// dir =  1 → đang đi tới register (trượt từ phải vào, ra trái)
-// dir = -1 → đang đi tới login    (trượt từ trái vào, ra phải)
 const makeVariants = (dir: number) => ({
   initial: {
     opacity: 0,
@@ -40,7 +36,6 @@ const AuthLayout = () => {
 
   // Theo dõi route trước để xác định hướng trượt
   const prevIsLogin = useRef<boolean>(isLogin);
-  // dir = 1: login→register (trượt trái), dir = -1: register→login (trượt phải)
   const dir = isLogin ? -1 : 1;
   useEffect(() => { prevIsLogin.current = isLogin; }, [isLogin]);
 
