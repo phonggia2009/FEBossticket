@@ -87,11 +87,17 @@ const AuthLayout = () => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
+ const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setRegisterLoading(true);
-      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      
+      // 1. Lấy URL từ biến môi trường
+      const API_URL = import.meta.env.VITE_API_URL;
+      
+      // 2. Gắn vào axios
+      const res = await axios.post(`${API_URL}/auth/register`, formData);
+      
       if (res.data.code === 201 || res.data.status === 'success') {
         showToast('Đăng ký thành công! Vui lòng kiểm tra email để xác thực.', 'success');
         setTimeout(() => navigate('/login?registered=true'), 2000);
