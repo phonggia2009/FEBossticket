@@ -26,26 +26,35 @@ export const useRegister = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-
   try {
     setLoading(true);
-
     const API_URL = import.meta.env.VITE_API_URL;
+
+    // Log ra để kiểm tra chính xác dữ liệu trước khi gửi
+    console.log("Dữ liệu gửi đi:", formData);
 
     const response = await axios.post(
       `${API_URL}/auth/register`,
-      formData
+      {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        phoneNumber: formData.phoneNumber
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
 
     if (response.data.code === 201 || response.data.status === 'success') {
-      showToast('Đăng ký thành công! Vui lòng kiểm tra email để xác thực.', 'success');
-
-      setTimeout(() => {
-        navigate('/login?registered=true');
-      }, 2000);
+      showToast('Đăng ký thành công!', 'success');
+      setTimeout(() => navigate('/login?registered=true'), 2000);
     }
-
   } catch (error: any) {
+    // In ra chi tiết lỗi từ server để debug
+    console.error("Lỗi chi tiết:", error.response?.data);
     showToast(error.response?.data?.message || 'Đăng ký thất bại', 'error');
   } finally {
     setLoading(false);
