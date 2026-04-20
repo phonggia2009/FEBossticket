@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../../common/api/axiosInstance';
 import Preloader from '../../common/components/Preloader'; // Đảm bảo đúng đường dẫn tới Preloader của bạn
 
 const ResetPassword = () => {
@@ -38,7 +38,7 @@ const ResetPassword = () => {
 
     try {
       // Gọi API đặt lại mật khẩu
-      const response = await axios.post('http://localhost:5000/api/auth/reset-password', {
+      const response = await axiosInstance.post('/api/auth/reset-password', {
         token: searchParams.get('token'),
         newPassword: password
       });

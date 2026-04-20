@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../common/api/axiosInstance';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +10,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+     await axiosInstance.post('/api/auth/forgot-password', { email });
       setMessage('Hướng dẫn khôi phục đã được gửi vào email của bạn.');
     } catch (error: any) {
       setMessage(error.response?.data?.message || 'Có lỗi xảy ra.');
