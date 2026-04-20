@@ -48,12 +48,12 @@ export const useBooking = () => {
   if (!id) return;
 
       const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-        transports: ["websocket"], // 🔥 FIX 2: ép websocket
+        transports: ["websocket"], 
         withCredentials: true,
 
-        autoConnect: false,        // 🔥 FIX 4: không connect ngay
+        autoConnect: false,      
 
-        reconnection: true,        // 🔥 FIX 3
+        reconnection: true,   
         reconnectionAttempts: Infinity,
         reconnectionDelay: 1000,
       });
