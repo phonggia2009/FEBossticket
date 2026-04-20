@@ -41,21 +41,29 @@ export const useBooking = () => {
 
   const socketRef = useRef<Socket | null>(null);
 
+  // ==========================================
+  // KẾT NỐI SOCKET & XỬ LÝ REAL-TIME
+  // ==========================================
   useEffect(() => {
     if (!id) return;
 
-    socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-        withCredentials: true,             
-        transports: ['polling', 'websocket']
-      });
+    // socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+    // const socket = socketRef.current;
 
-      const socket = socketRef.current;
-
-      socket.on('connect', () => {
-        console.log('✅ Đã kết nối Socket ID:', socket.id);
-        socket.emit('joinShowtime', { showtimeId: id });
-      });
-
+    // socket.on('connect', () => {
+    //   socket.emit('joinShowtime', { showtimeId: id });
+    // });
+        socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+      withCredentials: true,
+      transports: ['polling'], // ← bỏ 'websocket' hoàn toàn
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 2000,
+    });
+    const socket = socketRef.current;
+    socket.on('connect', () => {
+      socket.emit('joinShowtime', { showtimeId: id });
+    });
     // 1. Nhận danh sách ghế đang bị giữ từ BE
     socket.on('currentHoldingSeats', (data: Record<string, string>) => {
       // data có dạng { "seatId": "socketId" }
