@@ -10,7 +10,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
     try {
-     await axiosInstance.post('/api/auth/forgot-password', { email });
+     await axiosInstance.post('auth/forgot-password', { email });
       setMessage('Hướng dẫn khôi phục đã được gửi vào email của bạn.');
     } catch (error: any) {
       setMessage(error.response?.data?.message || 'Có lỗi xảy ra.');

@@ -38,7 +38,7 @@ const ResetPassword = () => {
 
     try {
       // Gọi API đặt lại mật khẩu
-      const response = await axiosInstance.post('/api/auth/reset-password', {
+      const response = await axiosInstance.post('/auth/reset-password', {
         token: searchParams.get('token'),
         newPassword: password
       });
