@@ -47,12 +47,17 @@ export const useBooking = () => {
   useEffect(() => {
     if (!id) return;
 
-    socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
-    const socket = socketRef.current;
+    socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+        withCredentials: true,               // Bắt buộc phải có để khớp với Backend
+        transports: ['websocket', 'polling'] // Giúp kết nối ổn định hơn trên server Render
+      });
 
-    socket.on('connect', () => {
-      socket.emit('joinShowtime', { showtimeId: id });
-    });
+      const socket = socketRef.current;
+
+      socket.on('connect', () => {
+        console.log('✅ Đã kết nối Socket ID:', socket.id);
+        socket.emit('joinShowtime', { showtimeId: id });
+      });
 
     // 1. Nhận danh sách ghế đang bị giữ từ BE
     socket.on('currentHoldingSeats', (data: Record<string, string>) => {
