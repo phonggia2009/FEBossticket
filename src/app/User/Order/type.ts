@@ -32,6 +32,7 @@ export interface Booking {
   };
   tickets: Ticket[];
   products: BookingItem[];
+  isReminderSent?: boolean;
 }
 
 export type FilterType = 'ALL' | BookingStatus;

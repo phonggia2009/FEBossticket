@@ -92,10 +92,7 @@ const AuthLayout = () => {
     try {
       setRegisterLoading(true);
       
-      // 1. Lấy URL từ biến môi trường
       const API_URL = import.meta.env.VITE_API_URL;
-      
-      // 2. Gắn vào axios
       const res = await axios.post(`${API_URL}/auth/register`, formData);
       
       if (res.data.code === 201 || res.data.status === 'success') {
@@ -111,11 +108,6 @@ const AuthLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-black">
-
-      {/* ── LEFT PANEL ───────────────────────────────────────────────
-          Login    → LoginBanner   (vào từ trái khi quay lại login)
-          Register → RegisterForm  (vào từ phải khi sang register)
-      ─────────────────────────────────────────────────────────────── */}
       <div className="w-1/2 min-h-screen relative overflow-hidden">
         <AnimatePresence mode="wait" custom={dir}>
           {isLogin ? (
