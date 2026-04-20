@@ -41,15 +41,12 @@ export const useBooking = () => {
 
   const socketRef = useRef<Socket | null>(null);
 
-  // ==========================================
-  // KẾT NỐI SOCKET & XỬ LÝ REAL-TIME
-  // ==========================================
   useEffect(() => {
     if (!id) return;
 
     socketRef.current = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-        withCredentials: true,               // Bắt buộc phải có để khớp với Backend
-        transports: ['websocket', 'polling'] // Giúp kết nối ổn định hơn trên server Render
+        withCredentials: true,             
+        transports: ['websocket', 'polling'] 
       });
 
       const socket = socketRef.current;
