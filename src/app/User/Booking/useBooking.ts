@@ -46,7 +46,7 @@ export const useBooking = () => {
   // ==========================================
  useEffect(() => {
   if (!id) return;
-      const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const socketUrl = rawUrl.replace(/\/api\/?$/, ""); 
 
     const socket = io(socketUrl, {
@@ -59,6 +59,10 @@ export const useBooking = () => {
     });
 
       socketRef.current = socket;
+      socket.on('connect', () => {
+        console.log('✅ Socket connected:', socket.id);
+        socket.emit('joinShowtime', { showtimeId: id });
+      });
 
       // 🔥 Delay connect (tránh server sleep)
       setTimeout(() => {
