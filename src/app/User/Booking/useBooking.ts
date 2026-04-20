@@ -46,17 +46,17 @@ export const useBooking = () => {
   // ==========================================
  useEffect(() => {
   if (!id) return;
+      const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const socketUrl = rawUrl.replace(/\/api\/?$/, ""); 
 
-      const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-        transports: ["websocket"], 
-        withCredentials: true,
-
-        autoConnect: false,      
-
-        reconnection: true,   
-        reconnectionAttempts: Infinity,
-        reconnectionDelay: 1000,
-      });
+    const socket = io(socketUrl, {
+      transports: ["websocket", "polling"], // Thêm polling để backup
+      withCredentials: true,
+      autoConnect: false,
+      reconnection: true,   
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+    });
 
       socketRef.current = socket;
 
