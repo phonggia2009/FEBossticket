@@ -14,7 +14,7 @@ const Home: React.FC = () => {
   return (
     <div className="flex flex-col gap-12 bg-[#0a0a0a] pb-12 min-h-screen">
       {/* 1. HERO BANNER */}
-      <HomeBanner movie={movies.length > 0 ? movies[0] : undefined} />
+      <HomeBanner />
 
       {/* 2. MAIN CONTENT - TABS & GRID */}
       <div>

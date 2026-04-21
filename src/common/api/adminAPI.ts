@@ -158,3 +158,7 @@ export const getAllPointHistoryAdmin = (page: number, limit: number, filters: an
 export const adjustPointsAdmin = (userId: number, amount: number, reason: string) => {
   return axiosInstance.post(`/users/admin/${userId}/adjust-points`, { amount, reason });
 };
+export const settingAPI = {
+  getSettings: () => axiosInstance.get('/settings'),
+  updateSettings: (data: any) => axiosInstance.put('/settings', data),
+};

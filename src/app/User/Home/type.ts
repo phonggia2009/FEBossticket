@@ -9,6 +9,7 @@ export interface Movie {
   description: string;
   posterUrl: string;
   duration: number | null;
+  trailerUrl?: string;
   releaseDate: string;
   genres: Genre[];
 }

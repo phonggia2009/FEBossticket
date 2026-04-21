@@ -43,6 +43,7 @@ const AdminLayout = () => {
             { key: '/admin/products', icon: <TagsOutlined />, label: 'Quản lý Sản phẩm' },
             { key: '/admin/genres', icon: <TagsOutlined />, label: 'Quản lý Thể loại' },
             { key: '/admin/dashboard', icon: <DashboardOutlined />, label: 'Báo Cáo Tổng Quan' },
+            { key: '/admin/settings', icon: <DashboardOutlined />, label: 'Cài đặt Website' },
           ]} 
         />
       </Sider>

@@ -35,6 +35,7 @@ import QRScanner from './app/Admin/pages/Checkin/QRscanner';
 import SearchResults from './app/User/Movie/SearchResults';
 import NowShowing from './app/User/Movie/NowShowing';
 import PointManager from './app/Admin/pages/Points/PointManager';
+import Settings from './app/Admin/pages/Settings/WebsiteManager';
 function App() {
   const dispatch = useDispatch<AppDispatch>();
   const { token } = useSelector((state: RootState) => state.auth);
@@ -92,6 +93,8 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="checkin" element={<QRScanner />} />
             <Route path="points" element={<PointManager />} />
+            <Route path="settings" element={<Settings />} />
+
           </Route>
         </Route>
 
