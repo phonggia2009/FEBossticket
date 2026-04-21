@@ -33,7 +33,7 @@ const AdminVoucher: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [form] = Form.useForm();
-
+  const [isLoading, setIsLoading] = useState(false);
   const fetchVouchers = async () => {
     setLoading(true);
     try {
@@ -52,6 +52,7 @@ const AdminVoucher: React.FC = () => {
 
   // HÀM NÀY ĐÃ ĐƯỢC CẬP NHẬT ĐỂ DÙNG FORMDATA
   const handleAdd = async (values: any) => {
+    setIsLoading(true);
   try {
     const formData = new FormData();
     
@@ -84,6 +85,9 @@ const AdminVoucher: React.FC = () => {
     fetchVouchers();
   } catch (error: any) {
     message.error(error.response?.data?.message || 'Lỗi khi tạo mã');
+  }
+    finally {
+      setIsLoading(false); // ✅ 2. Tắt hiệu ứng loading khi xong (dù lỗi hay thành công)
   }
 };
 
@@ -286,8 +290,15 @@ const AdminVoucher: React.FC = () => {
               </Form.Item>
             </div>
 
-            <Button type="primary" htmlType="submit" size="large" block className="h-12 text-base font-bold bg-red-600 hover:bg-red-500 border-none rounded-lg shadow-md">
-              Lưu & Phát hành Mã Khuyến Mãi
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              loading={isLoading} 
+              size="large" 
+              block 
+              className="h-12 text-base font-bold bg-red-600 hover:bg-red-500 border-none rounded-lg shadow-md"
+            >
+              {isLoading ? 'Đang xử lý và phát hành...' : 'Lưu & Phát hành Mã Khuyến Mãi'}
             </Button>
           </Form>
         </div>
