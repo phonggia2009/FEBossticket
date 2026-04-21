@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getActiveVouchers } from '../../../../common/api/userAPI';
-
+import { Link, useNavigate } from "react-router-dom";
 // Định nghĩa interface dựa trên cấu trúc trả về từ API
 interface Voucher {
   id: number;
@@ -56,12 +56,15 @@ const PromotionSection: React.FC = () => {
             Săn vé giá rẻ, nhận ngàn ưu đãi từ hệ thống rạp của chúng tôi
           </p>
         </div>
-        <button className="hidden md:flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium">
-          Xem tất cả
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+        <Link
+            to="/vouchers"
+            className="hidden md:flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+          >
+            Xem tất cả
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
       </div>
 
       {/* Grid Promotions */}

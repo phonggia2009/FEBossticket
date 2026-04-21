@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getMe, updateProfile } from '../../../common/api/userAPI';
 import MyPointHistory from './components/MyPointHistory';
+import { fetchCurrentUser } from '../../../store/slices/authSlice';
+import { useDispatch } from 'react-redux';
 
 const Profile: React.FC = () => {
+  const dispatch = useDispatch<any>(); // Sử dụng AppDispatch nếu có type cụ thể
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({ fullName: '', phoneNumber: '', email: '' });
@@ -41,6 +44,7 @@ const Profile: React.FC = () => {
     try {
       await updateProfile({ fullName: formData.fullName, phoneNumber: formData.phoneNumber });
       showToast('Cập nhật thông tin thành công!', 'success');
+      dispatch(fetchCurrentUser());
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Lỗi cập nhật', 'error');
     } finally {

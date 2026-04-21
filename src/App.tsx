@@ -38,6 +38,7 @@ import NowShowing from './app/User/Movie/NowShowing';
 import PointManager from './app/Admin/pages/Points/PointManager';
 import Settings from './app/Admin/pages/Settings/WebsiteManager';
 import MaintenancePage from './app/pages/MaintenancePage';
+import VoucherList from './app/User/Voucher/VoucherList';
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -89,6 +90,7 @@ function App() {
           <Route path="/cinemas" element={<Cinemas />} />
           <Route path="/for-you" element={<SuggestedMoviesPage />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/vouchers" element={<VoucherList />} />
         </Route>
 
         {/* ── Admin routes ── */}
