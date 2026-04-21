@@ -14,7 +14,7 @@ const WebsiteManager = () => {
   const fetchData = async () => {
     try {
       const [movieRes, settingRes] = await Promise.all([
-        getMovies(),
+        getMovies(1, 1000),
         settingAPI.getSettings()
       ]);
 
