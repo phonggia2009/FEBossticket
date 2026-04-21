@@ -52,41 +52,40 @@ const AdminVoucher: React.FC = () => {
 
   // HÀM NÀY ĐÃ ĐƯỢC CẬP NHẬT ĐỂ DÙNG FORMDATA
   const handleAdd = async (values: any) => {
-    try {
-      const formData = new FormData();
-      
-      // 1. Thêm các dữ liệu text thông thường
-      formData.append('title', values.title);
-      formData.append('code', values.code);
-      if (values.description) formData.append('description', values.description);
-      if (values.tag) formData.append('tag', values.tag);
-      formData.append('discount_type', values.discount_type);
-      formData.append('discount_value', values.discount_value);
-      formData.append('min_order_value', values.min_order_value);
-      if (values.max_discount) formData.append('max_discount', values.max_discount);
-      formData.append('usage_limit', values.usage_limit);
-      
-      // Format ngày tháng chuẩn ISO
-      formData.append('start_date', values.dates[0].toISOString());
-      formData.append('end_date', values.dates[1].toISOString());
+  try {
+    const formData = new FormData();
+    
+    // 1. Thêm các dữ liệu text thông thường
+    formData.append('title', values.title);
+    formData.append('code', values.code);
+    if (values.description) formData.append('description', values.description);
+    if (values.tag) formData.append('tag', values.tag);
+    formData.append('discount_type', values.discount_type);
+    formData.append('discount_value', values.discount_value);
+    formData.append('min_order_value', values.min_order_value);
+    if (values.max_discount) formData.append('max_discount', values.max_discount);
+    formData.append('usage_limit', values.usage_limit);
+    
+    formData.append('start_date', values.dates[0].toISOString());
+    formData.append('end_date', values.dates[1].toISOString());
 
-      // 2. Xử lý lấy file Ảnh
-      if (values.image && values.image.fileList && values.image.fileList.length > 0) {
-        const file = values.image.fileList[0].originFileObj;
-        formData.append('image', file); // 'image' phải khớp với tên field trong multer
+    if (values.image && values.image.length > 0) {
+      const file = values.image[0].originFileObj;
+      if (file) {
+        formData.append('image', file);
       }
-
-      // 3. Gửi FormData lên API
-      await createVoucher(formData as any);
-      
-      message.success('Tạo chương trình khuyến mãi thành công!');
-      setIsModalVisible(false);
-      form.resetFields();
-      fetchVouchers();
-    } catch (error: any) {
-      message.error(error.response?.data?.message || 'Lỗi khi tạo mã');
     }
-  };
+
+    await createVoucher(formData as any);
+    
+    message.success('Tạo chương trình khuyến mãi thành công!');
+    setIsModalVisible(false);
+    form.resetFields();
+    fetchVouchers();
+  } catch (error: any) {
+    message.error(error.response?.data?.message || 'Lỗi khi tạo mã');
+  }
+};
 
   const handleToggle = async (id: number) => {
     try {
