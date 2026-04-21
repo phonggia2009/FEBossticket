@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { App as AntdApp } from 'antd';
 import { fetchCurrentUser } from './store/slices/authSlice';
 import type { RootState, AppDispatch } from './store';
+import { settingAPI } from './common/api/adminAPI';
 import AdminLayout from './app/Admin/AdminLayout';
 import UserLayout from './app/User/UserLayout/Usermain';
 import AuthLayout from './app/pages/auth/AuthLayout';       
@@ -36,15 +37,33 @@ import SearchResults from './app/User/Movie/SearchResults';
 import NowShowing from './app/User/Movie/NowShowing';
 import PointManager from './app/Admin/pages/Points/PointManager';
 import Settings from './app/Admin/pages/Settings/WebsiteManager';
+import MaintenancePage from './app/pages/MaintenancePage';
+
 function App() {
   const dispatch = useDispatch<AppDispatch>();
-  const { token } = useSelector((state: RootState) => state.auth);
+  const { token,user } = useSelector((state: RootState) => state.auth);
+  const [isMaintenance, setIsMaintenance] = useState(false);
+  const [settingLoaded, setSettingLoaded] = useState(false);
 
-  useEffect(() => {
-    if (token) {
-      dispatch(fetchCurrentUser());
-    }
-  }, []);
+   useEffect(() => {
+    settingAPI.getSettings()
+      .then(res => {
+        setIsMaintenance(res.data.maintenanceMode);
+      })
+      .catch(() => {}) // Lỗi thì cứ cho vào bình thường
+      .finally(() => setSettingLoaded(true));
+      }, []);
+
+      if (!settingLoaded) return null; // Hoặc loading spinner
+
+      // Chặn user thường, cho phép ADMIN và các trang auth đi qua
+      const isAdmin = user?.role === 'ADMIN';
+      const isAuthPage = window.location.pathname.startsWith('/login') || 
+                        window.location.pathname.startsWith('/register');
+
+      if (isMaintenance && !isAdmin && !isAuthPage) {
+        return <MaintenancePage />;
+      }
 
   return (
     <BrowserRouter>
