@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button, Result, Spin } from 'antd';
-
+import { fetchCurrentUser } from '../../../store/slices/authSlice';
+import { useDispatch } from 'react-redux';
 const PaymentResult: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -11,8 +12,9 @@ const PaymentResult: React.FC = () => {
   useEffect(() => {
     // Đọc tham số 'status' từ URL do Backend của bạn redirect về
     const paymentStatus = searchParams.get('status');
-    
+     const dispatch = useDispatch<any>();
     if (paymentStatus === 'success') {
+      dispatch(fetchCurrentUser()); 
       setStatus('success');
     } else {
       setStatus('error');
