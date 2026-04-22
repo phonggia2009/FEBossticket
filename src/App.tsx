@@ -46,6 +46,12 @@ function App() {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [settingLoaded, setSettingLoaded] = useState(false);
 
+    useEffect(() => {
+      if (token) {
+        dispatch(fetchCurrentUser());
+      }
+    }, [dispatch, token]);
+
    useEffect(() => {
     settingAPI.getSettings()
       .then(res => {
