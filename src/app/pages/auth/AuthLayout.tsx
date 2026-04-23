@@ -9,6 +9,7 @@ import LoginForm from '../login/components/LoginForm';
 import RegisterBanner from '../register/components/RegisterBanner';
 import RegisterForm from '../register/components/RegisterForm';
 import { loginUser } from '../../../store/slices/authSlice';
+import { useLogin } from '../login/useLogin';
 import type { RootState, AppDispatch } from '../../../store';
 const DURATION = 0.45;
 const EASE = [0.76, 0, 0.24, 1] as [number, number, number, number];
@@ -51,7 +52,7 @@ const AuthLayout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user, token, loading: loginLoading, error: loginError } =
     useSelector((state: RootState) => state.auth);
-
+  const { handleGoogleSuccess } = useLogin();
   useEffect(() => {
     if (token) {
       if (user?.role === 'ADMIN') navigate('/admin/showtimes');
@@ -62,6 +63,7 @@ const AuthLayout = () => {
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = await dispatch(loginUser({ email, password }));
+    
     if (loginUser.fulfilled.match(result)) {
       const loggedUser = result.payload.user;
       if (loggedUser?.role === 'ADMIN') navigate('/admin/showtimes');
@@ -164,13 +166,9 @@ const AuthLayout = () => {
         <AnimatePresence mode="wait" custom={dir}>
           {isLogin ? (
             <motion.div
-              key="login-form"
               className="absolute inset-0 overflow-y-auto"
-              custom={dir}
-              variants={variants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
+              animate={{ opacity: isLogin ? 1 : 0, x: isLogin ? 0 : 50 }}
+              style={{ pointerEvents: isLogin ? 'auto' : 'none' }}
             >
               <LoginForm
                 email={email}
@@ -182,17 +180,14 @@ const AuthLayout = () => {
                 loading={loginLoading}
                 error={loginError}
                 isVerifiedSuccess={isVerifiedSuccess}
+                handleGoogleSuccess={handleGoogleSuccess}
               />
             </motion.div>
           ) : (
             <motion.div
-              key="register-banner"
               className="absolute inset-0"
-              custom={dir}
-              variants={variants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
+              animate={{ opacity: !isLogin ? 1 : 0, x: !isLogin ? 0 : -50 }}
+              style={{ pointerEvents: !isLogin ? 'auto' : 'none' }}
             >
               <RegisterBanner />
             </motion.div>

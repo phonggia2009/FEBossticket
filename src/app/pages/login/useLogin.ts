@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { loginUser } from '../../../store/slices/authSlice';
+import { loginUser, loginWithGoogle } from '../../../store/slices/authSlice';
+import { useCallback } from 'react';
 import type { RootState, AppDispatch } from '../../../store';
 
 export const useLogin = () => {
@@ -34,12 +35,45 @@ export const useLogin = () => {
     }
   };
 
+const handleGoogleSuccess = useCallback(async (credentialResponse: any) => {
+  console.log('[GoogleSuccess] called');
+  console.log('[GoogleSuccess] response:', credentialResponse);
+
+  if (!credentialResponse?.credential) {
+    console.log('[GoogleSuccess] NO credential');
+    return;
+  }
+
+  console.log('[GoogleSuccess] credential exists');
+
+  const result = await dispatch(loginWithGoogle(credentialResponse.credential));
+
+  console.log('[GoogleSuccess] dispatch result:', result);
+
+  if (loginWithGoogle.fulfilled.match(result)) {
+    console.log('[GoogleSuccess] login success');
+
+    const loggedUser = result.payload.user;
+
+    if (loggedUser?.role === 'ADMIN') {
+      console.log('[GoogleSuccess] navigate admin');
+      navigate('/admin/showtimes');
+    } else {
+      console.log('[GoogleSuccess] navigate home');
+      navigate('/');
+    }
+  } else {
+    console.log('[GoogleSuccess] login failed');
+  }
+}, [dispatch, navigate]);
+
   return {
     email, setEmail,
     password, setPassword,
     focused, setFocused,
     loading, error,
     isVerifiedSuccess,
-    handleSubmit
+    handleSubmit,
+    handleGoogleSuccess
   };
 };

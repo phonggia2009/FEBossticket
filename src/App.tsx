@@ -61,9 +61,9 @@ function App() {
       .finally(() => setSettingLoaded(true));
       }, []);
 
-      if (!settingLoaded) return null; // Hoặc loading spinner
-
-      // Chặn user thường, cho phép ADMIN và các trang auth đi qua
+      if (!settingLoaded) {
+        return <div style={{ color: 'white' }}>Loading...</div>;
+      }
       const isAdmin = user?.role === 'ADMIN';
       const isAuthPage = window.location.pathname.startsWith('/login') || 
                         window.location.pathname.startsWith('/register');

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Preloader from '../../../../common/components/Preloader';
+import { GoogleLogin } from '@react-oauth/google';
 
 const FilmIcon = ({ className }: { className?: string }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +51,6 @@ const CheckCircleIcon = ({ className }: { className?: string }) => (
       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
   </svg>
 );
-// ──────────────────────────────────────────────────────────────────────
 
 interface Props {
   email: string;
@@ -62,13 +62,28 @@ interface Props {
   loading: boolean;
   error: string | null;
   isVerifiedSuccess: boolean;
+  handleGoogleSuccess: (credentialResponse: any) => void;
 }
 
 const LoginForm: React.FC<Props> = ({
+  
   email, setEmail, setPassword,
   focused, setFocused,
-  handleSubmit, loading, error, isVerifiedSuccess,
+  handleSubmit, loading, error, isVerifiedSuccess, handleGoogleSuccess
 }) => {
+  console.log('[LoginForm] render');
+   const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  useEffect(() => {
+    console.log('[LoginForm] mounted');
+
+    return () => {
+      console.log('[LoginForm] unmounted');
+    };
+  }, []);
   return (
     <div className="w-full h-full min-h-screen flex items-center justify-center p-6 sm:p-12 bg-zinc-950">
       <div className="w-full max-w-md">
@@ -115,7 +130,7 @@ const LoginForm: React.FC<Props> = ({
           </div>
         )}
 
-        {/* Form */}
+        {/* Form — GoogleLogin đã được chuyển ra ngoài thẻ <form> */}
         <form onSubmit={handleSubmit} className="space-y-5">
 
           {/* Email */}
@@ -143,6 +158,7 @@ const LoginForm: React.FC<Props> = ({
                 type="email"
                 required
                 value={email}
+                autoComplete="email" 
                 className="w-full pl-11 pr-4 py-3.5 bg-transparent text-white text-sm placeholder-zinc-700 outline-none rounded-xl"
                 placeholder="ten@email.com"
                 onFocus={() => setFocused('email')}
@@ -184,6 +200,7 @@ const LoginForm: React.FC<Props> = ({
               <input
                 type="password"
                 required
+                autoComplete="current-password"
                 className="w-full pl-11 pr-4 py-3.5 bg-transparent text-white text-sm placeholder-zinc-700 outline-none rounded-xl"
                 placeholder="••••••••"
                 onFocus={() => setFocused('password')}
@@ -213,6 +230,26 @@ const LoginForm: React.FC<Props> = ({
             )}
           </button>
         </form>
+
+        {/*
+          FIX CHÍNH: GoogleLogin chuyển ra NGOÀI <form>.
+          Lý do: khi OAuth popup callback về, React re-render lại <form>
+          làm mất onSuccessRef → "onSuccessRef.current is not a function"
+        */}
+        <div className="mt-5">
+          <div className="text-center text-gray-500 mb-3 text-sm">Hoặc đăng nhập bằng</div>
+          <div className="flex justify-center">
+            {mounted && (
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => console.log('Google Login Failed')}
+                text="signin_with"
+                shape="rectangular"
+                logo_alignment="left"
+              />
+            )}
+          </div>
+        </div>
 
         {/* Register link */}
         <div className="mt-8 pt-8 border-t border-zinc-800/60 text-center">
