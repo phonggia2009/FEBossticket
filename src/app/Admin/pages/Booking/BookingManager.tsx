@@ -32,8 +32,11 @@ const BookingManager = () => {
               onChange={handleStatusChange}
               options={[
                 { value: 'SUCCESS', label: 'THÀNH CÔNG (SUCCESS)' },
+                { value:'USED', label: 'ĐÃ SỬ DỤNG (USED)' },
                 { value: 'PENDING', label: 'CHỜ THANH TOÁN' },
                 { value: 'CANCELLED', label: 'ĐÃ HỦY' },
+                { value: 'NO_SHOW', label: 'KHÔNG ĐẾN' },
+                { value: 'EXPIRED', label: 'HẾT HẠN' }
               ]}
             />
           </div>

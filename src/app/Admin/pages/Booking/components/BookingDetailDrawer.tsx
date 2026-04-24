@@ -53,7 +53,10 @@ const BookingDetailDrawer: React.FC<Props> = ({ open, onClose, booking, loading,
                   options={[
                     { value: 'PENDING', label: 'PENDING' },
                     { value: 'SUCCESS', label: 'SUCCESS' },
-                    { value: 'CANCELLED', label: 'CANCELLED' }
+                    { value: 'CANCELLED', label: 'CANCELLED' },
+                    { value: 'NO_SHOW', label: 'NO_SHOW' },
+                    { value: 'EXPIRED', label: 'EXPIRED' },
+                    { value: 'USED', label: 'USED' },
                   ]}
                   disabled={booking.status === 'CANCELLED'} // Đã hủy thì không cho đổi lại dễ dàng
                 />
